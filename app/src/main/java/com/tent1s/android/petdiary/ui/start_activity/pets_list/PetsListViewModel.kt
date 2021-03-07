@@ -1,4 +1,27 @@
 package com.tent1s.android.petdiary.ui.start_activity.pets_list
 
-class PetsListViewModel {
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
+import com.tent1s.android.petdiary.datebase.PetsList
+import com.tent1s.android.petdiary.datebase.PetsListDao
+import com.tent1s.android.petdiary.repository.PetDiaryRepository
+import kotlinx.coroutines.launch
+
+
+class PetsListViewModel(myRepository: PetDiaryRepository, private val  dateSource: PetsListDao) : ViewModel(){
+
+    val pets: LiveData<List<PetsList>> = myRepository.listPets.asLiveData()
+
+    fun startDelItemDatabase(name : String){
+        viewModelScope.launch {
+            del(name)
+        }
+    }
+
+    private suspend fun del(key: String) {
+        dateSource.del(key)
+    }
+
 }
