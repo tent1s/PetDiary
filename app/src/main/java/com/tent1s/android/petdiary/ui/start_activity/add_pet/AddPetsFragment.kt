@@ -1,12 +1,14 @@
 package com.tent1s.android.petdiary.ui.start_activity.add_pet
 
 
+import android.Manifest
 import android.app.Activity
-import android.content.Context
+import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.graphics.Bitmap
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.text.Editable
 import android.view.LayoutInflater
@@ -14,6 +16,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.widget.doOnTextChanged
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -34,29 +38,22 @@ import java.io.*
 
 private const val CAMERA_CODE = 1
 private const val GALLERY_CODE = 0
+private const val CAMERA_PHOTO_NAME = "temporaryPhoto"
+private const val REQUEST_STORAGE_PERMISSION = 355
 
-class AddPetsFragment : Fragment() {
+class AddPetsFragment : Fragment(R.layout.fragment_start_pets_add) {
 
     private var _binding: FragmentStartPetsAddBinding? = null
     private val binding get() = _binding!!
     private lateinit var addPetsViewModel: AddPetsViewModel
     private lateinit var viewModelFactory: AddPetsViewModelFactory
 
+    private lateinit var photoFile: File
 
 
-    override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
-    ): View {
-
-        _binding = DataBindingUtil.inflate(
-                inflater,
-                R.layout.fragment_start_pets_add,
-                container,
-                false
-        )
-
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        _binding = FragmentStartPetsAddBinding.bind(view)
 
         val application = requireNotNull(this.activity).application
         val dataSource = PetDiaryDatabase.getInstance(application).petsListDao
@@ -65,12 +62,10 @@ class AddPetsFragment : Fragment() {
         addPetsViewModel =
                 ViewModelProvider(this, viewModelFactory).get(AddPetsViewModel::class.java)
 
-        return binding.root
-    }
 
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+
+
 
         binding.floatingActionButtonPetDone.setOnClickListener {
             if (addPetsViewModel.isValid && addPetsViewModel.uniqueName) {
@@ -111,49 +106,71 @@ class AddPetsFragment : Fragment() {
 
 
             picker.addOnPositiveButtonClickListener {
-               addPetsViewModel.getDate(it)
+                addPetsViewModel.getDate(it)
             }
 
         }
 
-        binding.imageView.setOnClickListener {
+        binding.petAvatar.setOnClickListener {
             activity?.hideKeyboard()
-                val items = arrayOf("Фото из галереи", "Сфотографировать")
+            val items = arrayOf("Фото из галереи", "Сфотографировать")
 
-                MaterialAlertDialogBuilder(requireContext())
-                        .setItems(items) { _, which ->
-                            when (which) {
-                                GALLERY_CODE -> selectImageInAlbum()
-                                CAMERA_CODE -> takePhoto()
-                            }
+            MaterialAlertDialogBuilder(requireContext())
+                    .setItems(items) { _, which ->
+                        when (which) {
+                            GALLERY_CODE -> selectImageInAlbum()
+                            CAMERA_CODE -> takePhoto()
                         }
-                        .show()
+                    }
+                    .show()
         }
-
-
     }
+
+
 
 
 
     private fun selectImageInAlbum() {
-        val packageManager = requireActivity().packageManager
         val intent = Intent(Intent.ACTION_GET_CONTENT)
         intent.type = "image/*"
-        if (intent.resolveActivity(packageManager) != null) {
+        try {
             startActivityForResult(intent, GALLERY_CODE)
+        } catch (ex: ActivityNotFoundException) {
+            requireContext().shortToast("Невозможно открыть галерею!")
         }
     }
 
     private fun takePhoto() {
-        val packageManager = requireActivity().packageManager
-        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        if (intent.resolveActivity(packageManager) != null) {
-            startActivityForResult(intent, CAMERA_CODE)
+        checkForPermission()
+        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        photoFile = getPhotoFile()
+        val fileProvider = FileProvider.getUriForFile(requireContext(), "com.tent1s.android.petdiary.fileprovider", photoFile)
+        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider)
+        try {
+            startActivityForResult(takePictureIntent, CAMERA_CODE)
+        } catch (ex: ActivityNotFoundException) {
+            requireContext().shortToast("Невозможно открыть камеру!")
         }
     }
 
+    private fun getPhotoFile(): File {
+        val storageDirectory = requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        return File.createTempFile(CAMERA_PHOTO_NAME, ".jpg", storageDirectory)
+    }
 
-
+    private fun checkForPermission() {
+        if (ContextCompat.checkSelfPermission(
+                        requireActivity().applicationContext,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                )
+                != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissions(
+                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                    REQUEST_STORAGE_PERMISSION
+            )
+        }
+    }
 
 
 
@@ -162,45 +179,42 @@ class AddPetsFragment : Fragment() {
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
                 CAMERA_CODE -> {
+                    val photoUri = Uri.fromFile(photoFile)
+                    try {
+                        Glide
+                                .with(this)
+                                .load(photoUri)
+                                .centerCrop()
+                                .into(binding.petAvatar)
+                        addPetsViewModel.getImageUri(photoUri)
 
-                    val bundle: Bundle = data!!.extras!!
-                    val bmp = bundle["data"] as Bitmap?
-                    val resized = Bitmap.createScaledBitmap(bmp!!, 500, 500, true)
-
-                    Glide
-                        .with(this)
-                        .load(resized)
-                        .into(binding.imageView)
-
-                    addPetsViewModel.getImageUri(covertBitmapToUri(requireContext(),resized)!!)
-
+                    } catch (ex: RuntimeException) {
+                        requireContext().shortToast("Без прав невозможно сохранить!")
+                        return
+                    }
                 }
                 GALLERY_CODE -> {
 
                     val imageURI: Uri? = data?.data
 
                     Glide
-                        .with(this)
-                        .load(imageURI)
-                        .into(binding.imageView)
+                            .with(this)
+                            .load(imageURI)
+                            .centerCrop()
+                            .into(binding.petAvatar)
 
                     addPetsViewModel.getImageUri(imageURI!!)
                 }
             }
+        }else{
+            super.onActivityResult(requestCode, resultCode, data)
         }
     }
 
 
-    private fun covertBitmapToUri(inContext: Context, inImage: Bitmap): Uri? {
-        val bytes = ByteArrayOutputStream()
-        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
-        val path = MediaStore.Images.Media.insertImage(inContext.contentResolver, inImage, "Title", null)
-        return Uri.parse(path)
-    }
-
     private fun saveImageFile(uri: Uri){
         val inputStream: InputStream? = requireActivity().contentResolver.openInputStream(uri)
-        val file = File(requireActivity().getExternalFilesDir(null), "${addPetsViewModel.name}.jpg")
+        val file = File(requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "${addPetsViewModel.name}.jpg")
         try {
             val os: OutputStream = FileOutputStream(file)
             val data = ByteArray(inputStream!!.available())
@@ -242,5 +256,10 @@ class AddPetsFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        try {
+            photoFile.delete()
+        }catch (ex: UninitializedPropertyAccessException ){
+            Timber.e("File cant del")
+        }
     }
 }

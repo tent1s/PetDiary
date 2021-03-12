@@ -2,6 +2,7 @@ package com.tent1s.android.petdiary.ui.start_activity.pets_list
 
 import android.content.Context
 import android.net.Uri
+import android.os.Environment
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
@@ -9,6 +10,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.tent1s.android.petdiary.databinding.StartPetsListItemBinding
+import com.tent1s.android.petdiary.datebase.PetDiaryDatabase
 import com.tent1s.android.petdiary.datebase.PetsList
 import java.io.File
 
@@ -23,13 +25,14 @@ class PetsListAdapter(val longClickListener: (PetsList) -> Boolean, val clickLis
         holder.binding.listItem.setOnLongClickListener { longClickListener(item) }
         holder.binding.listItem.setOnClickListener { clickListener(item) }
 
-        val file = File(context.getExternalFilesDir(null), "${item.name}.jpg")
+        val file = File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "${item.name}.jpg")
 
         if (file.exists()){
             Glide
-                .with(context)
-                .load(file)
-                .into(holder.binding.petImage)
+                    .with(context)
+                    .load(file)
+                    .centerCrop()
+                    .into(holder.binding.petImage)
         }
     }
 

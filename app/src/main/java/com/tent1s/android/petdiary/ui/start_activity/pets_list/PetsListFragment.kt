@@ -2,6 +2,7 @@ package com.tent1s.android.petdiary.ui.start_activity.pets_list
 
 
 import android.os.Bundle
+import android.os.Environment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,30 +13,25 @@ import androidx.navigation.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tent1s.android.petdiary.PetDiaryApplication
 import com.tent1s.android.petdiary.R
+import com.tent1s.android.petdiary.databinding.FragmentHeadBinding
 import com.tent1s.android.petdiary.databinding.FragmentStartPetsListBinding
 import com.tent1s.android.petdiary.datebase.PetDiaryDatabase
 import java.io.File
 
 
-class PetsListFragment : Fragment() {
+class PetsListFragment : Fragment(R.layout.fragment_start_pets_list) {
 
     private var _binding: FragmentStartPetsListBinding? = null
     private val binding get() = _binding!!
     private lateinit var petsListViewModel: PetsListViewModel
     private lateinit var viewModelFactory: PetsListViewModelFactory
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
 
-        _binding = DataBindingUtil.inflate(
-            inflater,
-            R.layout.fragment_start_pets_list,
-            container,
-            false
-        )
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        _binding = FragmentStartPetsListBinding.bind(view)
 
         val myRepository = (requireActivity().application as PetDiaryApplication).repository
 
@@ -45,15 +41,10 @@ class PetsListFragment : Fragment() {
         viewModelFactory = PetsListViewModelFactory(myRepository, dataSource)
 
         petsListViewModel =
-            ViewModelProvider(this, viewModelFactory).get(PetsListViewModel::class.java)
-
-        return binding.root
-    }
+                ViewModelProvider(this, viewModelFactory).get(PetsListViewModel::class.java)
 
 
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
 
         binding.floatingActionButtonPetAdd.setOnClickListener {
             val navController = binding.root.findNavController()
@@ -66,15 +57,15 @@ class PetsListFragment : Fragment() {
         val adapter = PetsListAdapter({
 
             MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Удалить ${it.name}?")
-                .setNegativeButton("ДА") { _, _ ->
-                    petsListViewModel.startDelItemDatabase(it.name)
+                    .setTitle("Удалить ${it.name}?")
+                    .setNegativeButton("ДА") { _, _ ->
+                        petsListViewModel.startDelItemDatabase(it.name)
 
-                    deleteExternalStoragePrivateFile(it.name)
+                        deleteExternalStoragePrivateFile(it.name)
 
-                }
-                .setPositiveButton("НЕТ") { _, _ -> }
-                .show()
+                    }
+                    .setPositiveButton("НЕТ") { _, _ -> }
+                    .show()
 
             true
 
@@ -82,9 +73,9 @@ class PetsListFragment : Fragment() {
 
             val navController = binding.root.findNavController()
             navController.navigate(
-                PetsListFragmentDirections.actionPetsListFragmentToMainActivity(
-                    it.name
-                )
+                    PetsListFragmentDirections.actionPetsListFragmentToMainActivity(
+                            it.name
+                    )
             )
 
         }, requireContext())
@@ -102,8 +93,9 @@ class PetsListFragment : Fragment() {
         }
     }
 
+
     private fun deleteExternalStoragePrivateFile(name: String) {
-        val file = File(requireActivity().getExternalFilesDir(null), "$name.jpg")
+        val file = File(requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "$name.jpg")
         file.delete()
     }
 
