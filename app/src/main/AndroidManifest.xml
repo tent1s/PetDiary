@@ -24,17 +24,16 @@
                 android:resource="@xml/file_paths" />
         </provider>
         <activity
-            android:name=".StartActivity">
+            android:name=".SplashScreen"
+            android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".MainActivity">
-
-        </activity>
+        <activity android:name=".StartActivity"/>
+        <activity android:name=".MainActivity"/>
     </application>
 
 </manifest>
