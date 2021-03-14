@@ -22,7 +22,8 @@
                 app:layout_constraintEnd_toEndOf="@+id/list_of_pets"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/list_of_pets"
-                android:src="@drawable/track" />
+                android:src="@drawable/track"
+                android:visibility="gone"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/list_of_pets"
