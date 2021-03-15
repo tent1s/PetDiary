@@ -27,8 +27,8 @@ class AddPetsViewModel(private val dataSource: PetsListDao) : ViewModel(){
     val name: String
         get() = _name
 
-    private var _imageUri : Uri? = null
-    val imageUri: Uri?
+    private var _imageUri = MutableLiveData<Uri?>()
+    val imageUri: LiveData<Uri?>
         get() = _imageUri
 
 
@@ -98,7 +98,7 @@ class AddPetsViewModel(private val dataSource: PetsListDao) : ViewModel(){
     }
 
     fun getImageUri(newImageUri : Uri){
-        _imageUri = newImageUri
+        _imageUri.postValue(newImageUri)
     }
 
     private fun convertLongDateToString(newDayOfBirth: Long): String {

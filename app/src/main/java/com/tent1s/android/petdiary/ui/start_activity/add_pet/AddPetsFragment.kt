@@ -70,7 +70,7 @@ class AddPetsFragment : Fragment(R.layout.fragment_start_pets_add) {
         binding.floatingActionButtonPetDone.setOnClickListener {
             if (addPetsViewModel.isValid && addPetsViewModel.uniqueName) {
 
-                if (addPetsViewModel.imageUri != null) saveImageFile(addPetsViewModel.imageUri!!)
+                if (addPetsViewModel.imageUri.value != null) saveImageFile(addPetsViewModel.imageUri.value!!)
 
                 addPetsViewModel.saveInfToDatabase()
 
@@ -124,6 +124,11 @@ class AddPetsFragment : Fragment(R.layout.fragment_start_pets_add) {
                     }
                     .show()
         }
+
+        addPetsViewModel.imageUri.observe(viewLifecycleOwner){
+            it?.let { notNullUri -> setImageOnLayout(notNullUri) }
+        }
+
     }
 
 
@@ -143,7 +148,7 @@ class AddPetsFragment : Fragment(R.layout.fragment_start_pets_add) {
     private fun takePhoto() {
         checkForPermission()
         val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        photoFile = getPhotoFile()
+        photoFile = getTemporaryPhotoFile()
         val fileProvider = FileProvider.getUriForFile(requireContext(), "com.tent1s.android.petdiary.fileprovider", photoFile)
         takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider)
         try {
@@ -153,7 +158,7 @@ class AddPetsFragment : Fragment(R.layout.fragment_start_pets_add) {
         }
     }
 
-    private fun getPhotoFile(): File {
+    private fun getTemporaryPhotoFile(): File {
         val storageDirectory = requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         return File.createTempFile(CAMERA_PHOTO_NAME, ".jpg", storageDirectory)
     }
@@ -172,6 +177,14 @@ class AddPetsFragment : Fragment(R.layout.fragment_start_pets_add) {
         }
     }
 
+    private fun setImageOnLayout(URI : Uri){
+        Glide
+                .with(this)
+                .load(URI)
+                .centerCrop()
+                .into(binding.petAvatar)
+    }
+
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -181,11 +194,8 @@ class AddPetsFragment : Fragment(R.layout.fragment_start_pets_add) {
                 CAMERA_CODE -> {
                     val photoUri = Uri.fromFile(photoFile)
                     try {
-                        Glide
-                                .with(this)
-                                .load(photoUri)
-                                .centerCrop()
-                                .into(binding.petAvatar)
+
+
                         addPetsViewModel.getImageUri(photoUri)
 
                     } catch (ex: RuntimeException) {
@@ -195,15 +205,9 @@ class AddPetsFragment : Fragment(R.layout.fragment_start_pets_add) {
                 }
                 GALLERY_CODE -> {
 
-                    val imageURI: Uri? = data?.data
+                    val imageURI: Uri = data!!.data!!
 
-                    Glide
-                            .with(this)
-                            .load(imageURI)
-                            .centerCrop()
-                            .into(binding.petAvatar)
-
-                    addPetsViewModel.getImageUri(imageURI!!)
+                    addPetsViewModel.getImageUri(imageURI)
                 }
             }
         }else{
