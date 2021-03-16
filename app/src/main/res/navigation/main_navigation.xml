@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_navigation"
+    app:startDestination="@+id/navigation_head">
+
+    <fragment
+        android:id="@+id/navigation_head"
+        android:name="com.tent1s.android.petdiary.ui.main_activity.head.HeadFragment"
+        android:label="@string/title_head"
+        tools:layout="@layout/fragment_head" >
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_events"
+        android:name="com.tent1s.android.petdiary.ui.main_activity.events.EventsFragment"
+        android:label="@string/title_events"
+        tools:layout="@layout/fragment_events" />
+
+    <fragment
+        android:id="@+id/navigation_photo"
+        android:name="com.tent1s.android.petdiary.ui.main_activity.photo.PhotoFragment"
+        android:label="@string/title_photo"
+        tools:layout="@layout/fragment_notifications" />
+    <fragment
+        android:id="@+id/navigation_documents"
+        android:name="com.tent1s.android.petdiary.ui.main_activity.documents.DocumentsFragment"
+        android:label="@string/title_documents"
+        tools:layout="@layout/fragment_documents"/>
+</navigation>
