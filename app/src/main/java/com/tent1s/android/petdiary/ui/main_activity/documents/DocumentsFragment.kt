@@ -5,22 +5,19 @@ import android.view.LayoutInflater
 import android.view.View
 
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import by.kirich1409.viewbindingdelegate.viewBinding
 import com.tent1s.android.petdiary.R
 import com.tent1s.android.petdiary.databinding.FragmentDocumentsBinding
+import com.tent1s.android.petdiary.databinding.FragmentEventsBinding
+import com.tent1s.android.petdiary.ui.main_activity.events.EventsViewModel
 
 
 class DocumentsFragment : Fragment(R.layout.fragment_documents) {
 
-    private var _binding: FragmentDocumentsBinding? = null
-    private val binding get() = _binding!!
+    private val documentsViewModel: DocumentsViewModel by viewModels()
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        _binding = FragmentDocumentsBinding.bind(view)
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    private val binding : FragmentDocumentsBinding by viewBinding {
+        FragmentDocumentsBinding.bind(it.requireView())
     }
 }

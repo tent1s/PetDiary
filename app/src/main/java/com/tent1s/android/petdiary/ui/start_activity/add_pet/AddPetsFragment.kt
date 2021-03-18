@@ -22,30 +22,42 @@ import androidx.core.widget.doOnTextChanged
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
+import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.Glide
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tent1s.android.petdiary.R
 import com.tent1s.android.petdiary.databinding.FragmentStartPetsAddBinding
+import com.tent1s.android.petdiary.databinding.FragmentStartPetsListBinding
 import com.tent1s.android.petdiary.datebase.PetDiaryDatabase
+import com.tent1s.android.petdiary.ui.start_activity.pets_list.PetsListViewModel
 import com.tent1s.android.petdiary.utils.hideKeyboard
 import com.tent1s.android.petdiary.utils.shortToast
 import timber.log.Timber
 import java.io.*
 
 
-private const val CAMERA_CODE = 1
-private const val GALLERY_CODE = 0
-private const val CAMERA_PHOTO_NAME = "temporaryPhoto"
-private const val REQUEST_STORAGE_PERMISSION = 355
+
 
 class AddPetsFragment : Fragment(R.layout.fragment_start_pets_add) {
 
-    private var _binding: FragmentStartPetsAddBinding? = null
-    private val binding get() = _binding!!
-    private lateinit var addPetsViewModel: AddPetsViewModel
+    private val CAMERA_CODE = 1
+    private val GALLERY_CODE = 0
+    private val CAMERA_PHOTO_NAME = "temporaryPhoto"
+    private val REQUEST_STORAGE_PERMISSION = 355
+
+
+    private val addPetsViewModel: AddPetsViewModel by viewModels{
+        viewModelFactory
+    }
+
+    private val binding : FragmentStartPetsAddBinding by viewBinding {
+        FragmentStartPetsAddBinding.bind(it.requireView())
+    }
+
     private lateinit var viewModelFactory: AddPetsViewModelFactory
 
     private lateinit var photoFile: File
@@ -53,15 +65,11 @@ class AddPetsFragment : Fragment(R.layout.fragment_start_pets_add) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _binding = FragmentStartPetsAddBinding.bind(view)
 
         val application = requireNotNull(this.activity).application
         val dataSource = PetDiaryDatabase.getInstance(application).petsListDao
 
         viewModelFactory = AddPetsViewModelFactory(dataSource)
-        addPetsViewModel =
-                ViewModelProvider(this, viewModelFactory).get(AddPetsViewModel::class.java)
-
 
 
 
@@ -259,7 +267,6 @@ class AddPetsFragment : Fragment(R.layout.fragment_start_pets_add) {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
         try {
             photoFile.delete()
         }catch (ex: UninitializedPropertyAccessException ){

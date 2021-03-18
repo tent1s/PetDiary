@@ -8,22 +8,34 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
+import by.kirich1409.viewbindingdelegate.viewBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tent1s.android.petdiary.PetDiaryApplication
 import com.tent1s.android.petdiary.R
+import com.tent1s.android.petdiary.databinding.FragmentEventsBinding
 import com.tent1s.android.petdiary.databinding.FragmentHeadBinding
 import com.tent1s.android.petdiary.databinding.FragmentStartPetsListBinding
 import com.tent1s.android.petdiary.datebase.PetDiaryDatabase
+import com.tent1s.android.petdiary.ui.main_activity.events.EventsViewModel
 import java.io.File
 
 
 class PetsListFragment : Fragment(R.layout.fragment_start_pets_list) {
 
-    private var _binding: FragmentStartPetsListBinding? = null
-    private val binding get() = _binding!!
-    private lateinit var petsListViewModel: PetsListViewModel
+
+    private val petsListViewModel: PetsListViewModel by viewModels{
+        viewModelFactory
+    }
+
+    private val binding : FragmentStartPetsListBinding by viewBinding {
+        FragmentStartPetsListBinding.bind(it.requireView())
+    }
+
+
+
     private lateinit var viewModelFactory: PetsListViewModelFactory
 
 
@@ -31,19 +43,12 @@ class PetsListFragment : Fragment(R.layout.fragment_start_pets_list) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        _binding = FragmentStartPetsListBinding.bind(view)
-
         val myRepository = (requireActivity().application as PetDiaryApplication).repository
 
         val application = requireNotNull(this.activity).application
         val dataSource = PetDiaryDatabase.getInstance(application).petsListDao
 
         viewModelFactory = PetsListViewModelFactory(myRepository, dataSource)
-
-        petsListViewModel =
-                ViewModelProvider(this, viewModelFactory).get(PetsListViewModel::class.java)
-
-
 
 
         binding.floatingActionButtonPetAdd.setOnClickListener {
@@ -100,8 +105,4 @@ class PetsListFragment : Fragment(R.layout.fragment_start_pets_list) {
     }
 
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
 }
