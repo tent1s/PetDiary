@@ -8,14 +8,16 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import by.kirich1409.viewbindingdelegate.viewBinding
 import com.tent1s.android.petdiary.databinding.ActivityMainBinding
+import com.tent1s.android.petdiary.databinding.ActivityStartBinding
 import com.tent1s.android.petdiary.ui.main_activity.head.HeadFragment
 import com.tent1s.android.petdiary.ui.main_activity.head.Postman
 import timber.log.Timber
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
-
+    private val binding by viewBinding(ActivityMainBinding::bind, R.id.container)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,8 +28,6 @@ class MainActivity : AppCompatActivity() {
         } catch (ignored: ClassCastException) {
             Timber.e("Error provide arg to fragment")
         }
-
-        val binding = DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main)
 
 
 

@@ -11,6 +11,8 @@ import androidx.lifecycle.viewModelScope
 import com.tent1s.android.petdiary.datebase.PetsList
 import com.tent1s.android.petdiary.datebase.PetsListDao
 import com.tent1s.android.petdiary.utils.SingleLiveEvent
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.net.URI
 import java.text.SimpleDateFormat
@@ -27,9 +29,14 @@ class AddPetsViewModel(private val dataSource: PetsListDao) : ViewModel(){
     val name: String
         get() = _name
 
-    private var _imageUri = MutableLiveData<Uri?>()
-    val imageUri: LiveData<Uri?>
+    private var _imageUri = MutableStateFlow<Uri?>(null)
+    val imageUri: StateFlow<Uri?>
         get() = _imageUri
+
+    private val _dayOfBirth = MutableStateFlow("")
+    val dayOfBirth: StateFlow<String>
+        get() = _dayOfBirth
+
 
 
     private var gender : String? = null
@@ -37,10 +44,6 @@ class AddPetsViewModel(private val dataSource: PetsListDao) : ViewModel(){
     private var breed : String? = null
 
     private var weight : String? = null
-
-    private val _dayOfBirth = MutableLiveData("")
-    val dayOfBirth: LiveData<String>
-        get() = _dayOfBirth
 
 
     private val nameError = SingleLiveEvent<Boolean>()
@@ -94,17 +97,21 @@ class AddPetsViewModel(private val dataSource: PetsListDao) : ViewModel(){
     }
 
     fun getDate(newDayOfBirth : Long){
-        _dayOfBirth.postValue(convertLongDateToString(newDayOfBirth))
+        _dayOfBirth.value = convertLongDateToString(newDayOfBirth)
     }
 
     fun getImageUri(newImageUri : Uri){
-        _imageUri.postValue(newImageUri)
+        _imageUri.value = newImageUri
     }
 
     private fun convertLongDateToString(newDayOfBirth: Long): String {
-        val dateTime = Date(newDayOfBirth)
-        val sm = SimpleDateFormat("dd.MM.yyyy", Locale.ROOT)
-        return sm.format(dateTime)
+        return try {
+            val dateTime = Date(newDayOfBirth)
+            val sm = SimpleDateFormat("dd.MM.yyyy", Locale.ROOT)
+            sm.format(dateTime)
+        }catch (ex: RuntimeException){
+            "error"
+        }
     }
 
     fun saveInfToDatabase(){

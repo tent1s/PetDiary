@@ -25,6 +25,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.Glide
@@ -36,7 +37,10 @@ import com.tent1s.android.petdiary.databinding.FragmentStartPetsListBinding
 import com.tent1s.android.petdiary.datebase.PetDiaryDatabase
 import com.tent1s.android.petdiary.ui.start_activity.pets_list.PetsListViewModel
 import com.tent1s.android.petdiary.utils.hideKeyboard
+import com.tent1s.android.petdiary.utils.launchWhenStared
 import com.tent1s.android.petdiary.utils.shortToast
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import timber.log.Timber
 import java.io.*
 
@@ -166,9 +170,15 @@ class AddPetsFragment : Fragment(R.layout.fragment_start_pets_add) {
                     .show()
         }
 
-        addPetsViewModel.imageUri.observe(viewLifecycleOwner){
-            it?.let { notNullUri -> setImageOnLayout(notNullUri) }
-        }
+            addPetsViewModel.imageUri
+                .onEach{
+                    it?.let { notNullUri -> setImageOnLayout(notNullUri) }
+                }.launchWhenStared(lifecycleScope)
+
+            addPetsViewModel.dayOfBirth
+                .onEach {
+                    binding.dateInput.text = Editable.Factory.getInstance().newEditable(it)
+                }.launchWhenStared(lifecycleScope)
 
     }
 
@@ -220,9 +230,6 @@ class AddPetsFragment : Fragment(R.layout.fragment_start_pets_add) {
             addPetsViewModel.getGender(text.toString())
         }
 
-        addPetsViewModel.dayOfBirth.observe(viewLifecycleOwner){
-            binding.dateInput.text = Editable.Factory.getInstance().newEditable(it)
-        }
 
         addPetsViewModel.getNameError().observe(viewLifecycleOwner){
             if (it) {

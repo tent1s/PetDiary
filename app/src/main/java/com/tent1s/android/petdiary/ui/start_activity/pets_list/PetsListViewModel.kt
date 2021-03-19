@@ -7,12 +7,13 @@ import androidx.lifecycle.viewModelScope
 import com.tent1s.android.petdiary.datebase.PetsList
 import com.tent1s.android.petdiary.datebase.PetsListDao
 import com.tent1s.android.petdiary.repository.PetDiaryRepository
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 
 class PetsListViewModel(myRepository: PetDiaryRepository, private val  dateSource: PetsListDao) : ViewModel(){
 
-    val pets: LiveData<List<PetsList>> = myRepository.listPets.asLiveData()
+    val pets: Flow<List<PetsList>> = myRepository.listPets
 
     fun startDelItemDatabase(name : String){
         viewModelScope.launch {

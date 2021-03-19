@@ -12,6 +12,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -22,6 +23,7 @@ import com.tent1s.android.petdiary.databinding.FragmentHeadBinding
 import com.tent1s.android.petdiary.databinding.FragmentStartPetsListBinding
 import com.tent1s.android.petdiary.datebase.PetDiaryDatabase
 import com.tent1s.android.petdiary.ui.main_activity.events.EventsViewModel
+import kotlinx.coroutines.flow.collect
 import java.io.File
 
 
@@ -88,8 +90,8 @@ class PetsListFragment : Fragment(R.layout.fragment_start_pets_list) {
         }, requireContext())
         binding.petsListRecyclerView.adapter = adapter
 
-        petsListViewModel.pets.observe(viewLifecycleOwner) {
-            it?.let {
+        lifecycleScope.launchWhenStarted {
+            petsListViewModel.pets.collect {
                 binding.emptyListImage.isVisible = it.isEmpty()
                 adapter.submitList(it)
             }
