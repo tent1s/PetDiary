@@ -22,7 +22,7 @@
         android:id="@+id/navigation_photo"
         android:name="com.tent1s.android.petdiary.ui.main_activity.photo.PhotoFragment"
         android:label="@string/title_photo"
-        tools:layout="@layout/fragment_notifications" />
+        tools:layout="@layout/fragment_photo" />
     <fragment
         android:id="@+id/navigation_documents"
         android:name="com.tent1s.android.petdiary.ui.main_activity.documents.DocumentsFragment"

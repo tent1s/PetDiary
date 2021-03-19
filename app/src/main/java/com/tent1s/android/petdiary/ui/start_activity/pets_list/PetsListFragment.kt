@@ -6,6 +6,8 @@ import android.os.Environment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isGone
+import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -51,7 +53,7 @@ class PetsListFragment : Fragment(R.layout.fragment_start_pets_list) {
         viewModelFactory = PetsListViewModelFactory(myRepository, dataSource)
 
 
-        binding.floatingActionButtonPetAdd.setOnClickListener {
+        binding.petAddFloatingActionButton.setOnClickListener {
             val navController = binding.root.findNavController()
             navController.navigate(R.id.action_petsListFragment_to_addPetsFragment)
         }
@@ -62,14 +64,14 @@ class PetsListFragment : Fragment(R.layout.fragment_start_pets_list) {
         val adapter = PetsListAdapter({
 
             MaterialAlertDialogBuilder(requireContext())
-                    .setTitle("Удалить ${it.name}?")
-                    .setNegativeButton("ДА") { _, _ ->
+                    .setTitle("${getString(R.string.delete_alert_dialog)} ${it.name}?")
+                    .setNegativeButton(getString(R.string.yes_alert_dialog)) { _, _ ->
                         petsListViewModel.startDelItemDatabase(it.name)
 
                         deleteExternalStoragePrivateFile(it.name)
 
                     }
-                    .setPositiveButton("НЕТ") { _, _ -> }
+                    .setPositiveButton(getString(R.string.no_alert_dialog)) { _, _ -> }
                     .show()
 
             true
@@ -84,15 +86,11 @@ class PetsListFragment : Fragment(R.layout.fragment_start_pets_list) {
             )
 
         }, requireContext())
-        binding.listOfPets.adapter = adapter
+        binding.petsListRecyclerView.adapter = adapter
 
         petsListViewModel.pets.observe(viewLifecycleOwner) {
             it?.let {
-                if (it.isNotEmpty()){
-                    binding.imageEmptyList.visibility = View.GONE
-                }else{
-                    binding.imageEmptyList.visibility = View.VISIBLE
-                }
+                binding.emptyListImage.isVisible = it.isEmpty()
                 adapter.submitList(it)
             }
         }
@@ -100,8 +98,7 @@ class PetsListFragment : Fragment(R.layout.fragment_start_pets_list) {
 
 
     private fun deleteExternalStoragePrivateFile(name: String) {
-        val file = File(requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "$name.jpg")
-        file.delete()
+        File(requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "$name.jpg").delete()
     }
 
 

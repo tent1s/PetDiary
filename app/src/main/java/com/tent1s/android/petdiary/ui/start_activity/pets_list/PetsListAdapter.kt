@@ -15,37 +15,45 @@ import com.tent1s.android.petdiary.datebase.PetsList
 import java.io.File
 
 
-class PetsListAdapter(val longClickListener: (PetsList) -> Boolean, val clickListener: (PetsList) -> Unit, private val context: Context) : ListAdapter<PetsList,
+class PetsListAdapter(val longClickListener: (PetsList) -> Boolean,
+                      val clickListener: (PetsList) -> Unit,
+                      private val context: Context) : ListAdapter<PetsList,
         PetsListAdapter.ViewHolder>(PetsListDiffCallback()) {
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = getItem(position)
 
-        holder.bind(item)
-        holder.binding.listItem.setOnLongClickListener { longClickListener(item) }
-        holder.binding.listItem.setOnClickListener { clickListener(item) }
-
-        val file = File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "${item.name}.jpg")
-
-        if (file.exists()){
-            Glide
-                    .with(context)
-                    .load(file)
-                    .centerCrop()
-                    .into(holder.binding.petImage)
-        }
+    override fun onCreateViewHolder(parent: ViewGroup,
+                                    viewType: Int): ViewHolder {
+        return ViewHolder.from(parent)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder.from(parent)
+    override fun onBindViewHolder(holder: ViewHolder,
+                                  position: Int) {
+        val item = getItem(position)
+        with(holder) {
+            bind(item, context)
+            binding.listItem.setOnLongClickListener { longClickListener(item) }
+            binding.listItem.setOnClickListener { clickListener(item) }
+        }
+
     }
 
     class ViewHolder private constructor(val binding: StartPetsListItemBinding)
         : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: PetsList) {
+        fun bind(item: PetsList, context: Context) {
 
-            binding.petName.text = item.name
+
+            val file = File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "${item.name}.jpg")
+            if (file.exists()){
+                Glide
+                        .with(context)
+                        .load(file)
+                        .centerCrop()
+                        .into(binding.petImage)
+            }
+
+
+            binding.petNameTextView.text = item.name
 
         }
 
@@ -54,7 +62,7 @@ class PetsListAdapter(val longClickListener: (PetsList) -> Boolean, val clickLis
                 val layoutInflater = LayoutInflater.from(parent.context)
                 val binding = StartPetsListItemBinding.inflate(layoutInflater, parent, false)
 
-                return ViewHolder(binding)
+                return ViewHolder(binding, )
             }
         }
     }

@@ -16,7 +16,7 @@ import com.tent1s.android.petdiary.databinding.FragmentEventsBinding
 import com.tent1s.android.petdiary.ui.main_activity.documents.DocumentsViewModel
 import com.tent1s.android.petdiary.ui.main_activity.events.EventsViewModel
 
-class PhotoFragment : Fragment() {
+class PhotoFragment : Fragment(R.layout.fragment_photo) {
     private val photoViewModel: PhotoViewModel by viewModels()
 
     private val binding : FragmentEventsBinding by viewBinding {

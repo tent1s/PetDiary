@@ -51,7 +51,7 @@ class HeadFragment : Fragment(R.layout.fragment_head), Postman {
 
 
 
-        binding.petName.text = headViewModel.petName
+        binding.petNameTextView.text = headViewModel.petName
 
 
         val file = File(requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "${headViewModel.petName}.jpg")
@@ -61,7 +61,7 @@ class HeadFragment : Fragment(R.layout.fragment_head), Postman {
                     .with(requireContext())
                     .load(file)
                     .centerCrop()
-                    .into(binding.petAvatar)
+                    .into(binding.petAvatarImage)
         }
     }
 

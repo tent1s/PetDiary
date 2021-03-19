@@ -3,9 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-    </data>
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -72,7 +69,7 @@
                         android:id="@+id/genderText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Пол"
+                        android:hint="@string/gender"
                         android:inputType="none" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -95,7 +92,7 @@
                         android:id="@+id/breedInput"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Порода" />
+                        android:hint="@string/breed" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -117,7 +114,7 @@
                         android:id="@+id/weightInput"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Вес" />
+                        android:hint="@string/weight" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -138,7 +135,7 @@
                         android:id="@+id/dateInput"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Дата рождения"
+                        android:hint="@string/date_of_birth"
                         android:inputType="none" />
                 </com.google.android.material.textfield.TextInputLayout>
 

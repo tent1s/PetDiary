@@ -1,8 +1,25 @@
 <resources>
     <string name="app_name">PetDiary</string>
-    <string name="title_head">Главная</string>
-    <string name="title_events">События</string>
-    <string name="title_documents">Документы</string>
-    <string name="title_photo">Фото</string>documents
-    <string name="pets_name">Кличка</string>
+    <string name="title_head">Main</string>
+    <string name="title_events">Events</string>
+    <string name="title_documents">Documents</string>
+    <string name="title_photo">Photo</string>
+    <string name="pets_name">Pet name</string>
+    <string name="start_list_title">Pets</string>
+    <string name="start_add_pets_title">Create</string>
+    <string name="delete_alert_dialog">Delete</string>
+    <string name="yes_alert_dialog">YES</string>
+    <string name="no_alert_dialog">NO</string>
+    <string name="text_view_pet_name_empty">Enter your pet name!</string>
+    <string name="text_field_pet_name_error">The field is empty or there is already such a pet name!</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="not_have_permission">"It is impossible to save without permission!</string>
+    <string name="choose_photo_gallery">Photo from gallery</string>
+    <string name="take_photo">Take photo</string>
+    <string name="choose_date">Choose date</string>
+    <string name="gender">Gender</string>
+    <string name="breed">Breed</string>
+    <string name="weight">Weight</string>
+    <string name="date_of_birth">Date of Birth</string>
 </resources>

@@ -18,6 +18,8 @@ abstract class PetDiaryDatabase : RoomDatabase() {
 
     companion object {
 
+        private const val nameDatabase = "pets_database"
+
         @Volatile
         private var INSTANCE: PetDiaryDatabase? = null
         fun getInstance(context: Context): PetDiaryDatabase {
@@ -30,7 +32,7 @@ abstract class PetDiaryDatabase : RoomDatabase() {
                     instance = Room.databaseBuilder(
                         context.applicationContext,
                         PetDiaryDatabase::class.java,
-                        "pets_database"
+                            nameDatabase
                     )
                         .fallbackToDestructiveMigration()
                         .build()

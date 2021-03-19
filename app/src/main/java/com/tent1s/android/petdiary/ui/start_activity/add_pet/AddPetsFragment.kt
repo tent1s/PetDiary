@@ -86,8 +86,8 @@ class AddPetsFragment : Fragment(R.layout.fragment_start_pets_add) {
                 navController.navigate(R.id.action_addPetsFragment_to_petsListFragment)
 
             }else{
-                requireContext().shortToast("Введите кличку!")
-                binding.nameField.error = "Поле пустое или такая кличка уже есть!"
+                requireContext().shortToast(getString(R.string.text_view_pet_name_empty))
+                binding.nameField.error = getString(R.string.text_field_pet_name_error)
             }
         }
 
@@ -106,7 +106,7 @@ class AddPetsFragment : Fragment(R.layout.fragment_start_pets_add) {
             activity?.hideKeyboard()
 
             val builder = MaterialDatePicker.Builder.datePicker()
-            builder.setTitleText("Выбор даты")
+            builder.setTitleText(getString(R.string.choose_date))
             val picker = builder.build()
             val fragmentManager = (activity as FragmentActivity).supportFragmentManager
 
@@ -121,7 +121,7 @@ class AddPetsFragment : Fragment(R.layout.fragment_start_pets_add) {
 
         binding.petAvatar.setOnClickListener {
             activity?.hideKeyboard()
-            val items = arrayOf("Фото из галереи", "Сфотографировать")
+            val items = arrayOf(getString(R.string.choose_photo_gallery), getString(R.string.take_photo))
 
             MaterialAlertDialogBuilder(requireContext())
                     .setItems(items) { _, which ->
@@ -145,7 +145,9 @@ class AddPetsFragment : Fragment(R.layout.fragment_start_pets_add) {
 
     private fun selectImageInAlbum() {
         val intent = Intent(Intent.ACTION_GET_CONTENT)
-        intent.type = "image/*"
+
+        intent.apply {  type = "image/*"}
+
         try {
             startActivityForResult(intent, GALLERY_CODE)
         } catch (ex: ActivityNotFoundException) {
@@ -207,7 +209,7 @@ class AddPetsFragment : Fragment(R.layout.fragment_start_pets_add) {
                         addPetsViewModel.getImageUri(photoUri)
 
                     } catch (ex: RuntimeException) {
-                        requireContext().shortToast("Без прав невозможно сохранить!")
+                        requireContext().shortToast(getString(R.string.not_have_permission))
                         return
                     }
                 }
@@ -244,11 +246,11 @@ class AddPetsFragment : Fragment(R.layout.fragment_start_pets_add) {
     override fun onStart() {
         super.onStart()
 
-        val items = listOf("Самец", "Самка")
+        val items = listOf(getString(R.string.male), getString(R.string.female))
         val genderAdapter = ArrayAdapter(requireContext(), R.layout.dropdown_menu_item, items)
-        (binding.genderInput.editText as? AutoCompleteTextView)?.setAdapter(genderAdapter)
+        (binding.genderInput.editText as AutoCompleteTextView).setAdapter(genderAdapter)
 
-        binding.genderInput.editText!!.doOnTextChanged { text, _, _, _ ->
+        (binding.genderInput.editText as AutoCompleteTextView).doOnTextChanged { text, _, _, _ ->
             addPetsViewModel.getGender(text.toString())
         }
 
@@ -258,7 +260,7 @@ class AddPetsFragment : Fragment(R.layout.fragment_start_pets_add) {
 
         addPetsViewModel.getNameError().observe(viewLifecycleOwner){
             if (it) {
-                binding.nameField.error = "Поле пустое или такая кличка уже есть!"
+                binding.nameField.error = getString(R.string.text_field_pet_name_error)
             }else{
                 binding.nameField.error = null
             }

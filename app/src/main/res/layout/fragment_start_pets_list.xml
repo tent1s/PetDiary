@@ -2,9 +2,6 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"  xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-    </data>
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -15,18 +12,18 @@
             android:layout_height="match_parent">
 
             <ImageView
-                android:id="@+id/imageEmptyList"
+                android:id="@+id/emptyListImage"
                 android:layout_width="200dp"
                 android:layout_height="200dp"
-                app:layout_constraintBottom_toBottomOf="@+id/list_of_pets"
-                app:layout_constraintEnd_toEndOf="@+id/list_of_pets"
+                app:layout_constraintBottom_toBottomOf="@+id/petsListRecyclerView"
+                app:layout_constraintEnd_toEndOf="@+id/petsListRecyclerView"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/list_of_pets"
+                app:layout_constraintTop_toTopOf="@+id/petsListRecyclerView"
                 android:src="@drawable/track"
                 android:visibility="gone"/>
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/list_of_pets"
+                android:id="@+id/petsListRecyclerView"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
@@ -38,7 +35,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/floatingActionButtonPetAdd"
+            android:id="@+id/petAddFloatingActionButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end|bottom"
