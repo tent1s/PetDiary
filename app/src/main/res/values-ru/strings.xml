@@ -22,4 +22,5 @@
     <string name="breed">Порода</string>
     <string name="weight">Вес</string>
     <string name="date_of_birth">Дата рождения</string>
+    <string name="error">Ошибка</string>
 </resources>

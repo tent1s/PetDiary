@@ -16,6 +16,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.widget.doOnTextChanged
@@ -47,7 +48,8 @@ class AddPetsFragment : Fragment(R.layout.fragment_start_pets_add) {
     private val CAMERA_CODE = 1
     private val GALLERY_CODE = 0
     private val CAMERA_PHOTO_NAME = "temporaryPhoto"
-    private val REQUEST_STORAGE_PERMISSION = 355
+    private val metaTypeGetImage = "image/*"
+
 
 
     private val addPetsViewModel: AddPetsViewModel by viewModels{
@@ -61,6 +63,26 @@ class AddPetsFragment : Fragment(R.layout.fragment_start_pets_add) {
     private lateinit var viewModelFactory: AddPetsViewModelFactory
 
     private lateinit var photoFile: File
+
+
+    private val getContent = registerForActivityResult(ActivityResultContracts.GetContent()){
+        it?.let { notNullUri->
+            addPetsViewModel.getImageUri(notNullUri)
+        }
+
+
+    }
+    private val takePic = registerForActivityResult(ActivityResultContracts.TakePicture()){
+        if (it) {
+            val photoUri = Uri.fromFile(photoFile)
+                    try {
+                        addPetsViewModel.getImageUri(photoUri)
+
+                    } catch (ex: RuntimeException) {
+                        requireContext().shortToast(getString(R.string.not_have_permission))
+                    }
+        }
+    }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -125,9 +147,20 @@ class AddPetsFragment : Fragment(R.layout.fragment_start_pets_add) {
 
             MaterialAlertDialogBuilder(requireContext())
                     .setItems(items) { _, which ->
-                        when (which) {
-                            GALLERY_CODE -> selectImageInAlbum()
-                            CAMERA_CODE -> takePhoto()
+                        try {
+                            when (which) {
+
+                                GALLERY_CODE -> getContent.launch(metaTypeGetImage)
+
+                                CAMERA_CODE -> {
+                                    photoFile = getTemporaryPhotoFile()
+                                    val fileProvider = FileProvider.getUriForFile(requireContext(), "com.tent1s.android.petdiary.fileprovider", photoFile)
+                                    takePic.launch(fileProvider)
+                                }
+
+                            }
+                        } catch (ex: ActivityNotFoundException) {
+                            requireContext().shortToast(getString(R.string.error))
                         }
                     }
                     .show()
@@ -141,51 +174,12 @@ class AddPetsFragment : Fragment(R.layout.fragment_start_pets_add) {
 
 
 
-
-
-    private fun selectImageInAlbum() {
-        val intent = Intent(Intent.ACTION_GET_CONTENT)
-
-        intent.apply {  type = "image/*"}
-
-        try {
-            startActivityForResult(intent, GALLERY_CODE)
-        } catch (ex: ActivityNotFoundException) {
-            requireContext().shortToast("Невозможно открыть галерею!")
-        }
-    }
-
-    private fun takePhoto() {
-        checkForPermission()
-        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        photoFile = getTemporaryPhotoFile()
-        val fileProvider = FileProvider.getUriForFile(requireContext(), "com.tent1s.android.petdiary.fileprovider", photoFile)
-        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider)
-        try {
-            startActivityForResult(takePictureIntent, CAMERA_CODE)
-        } catch (ex: ActivityNotFoundException) {
-            requireContext().shortToast("Невозможно открыть камеру!")
-        }
-    }
-
     private fun getTemporaryPhotoFile(): File {
         val storageDirectory = requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         return File.createTempFile(CAMERA_PHOTO_NAME, ".jpg", storageDirectory)
     }
 
-    private fun checkForPermission() {
-        if (ContextCompat.checkSelfPermission(
-                        requireActivity().applicationContext,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE
-                )
-                != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestPermissions(
-                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                    REQUEST_STORAGE_PERMISSION
-            )
-        }
-    }
+
 
     private fun setImageOnLayout(URI : Uri){
         Glide
@@ -196,34 +190,6 @@ class AddPetsFragment : Fragment(R.layout.fragment_start_pets_add) {
     }
 
 
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK) {
-            when (requestCode) {
-                CAMERA_CODE -> {
-                    val photoUri = Uri.fromFile(photoFile)
-                    try {
-
-
-                        addPetsViewModel.getImageUri(photoUri)
-
-                    } catch (ex: RuntimeException) {
-                        requireContext().shortToast(getString(R.string.not_have_permission))
-                        return
-                    }
-                }
-                GALLERY_CODE -> {
-
-                    val imageURI: Uri = data!!.data!!
-
-                    addPetsViewModel.getImageUri(imageURI)
-                }
-            }
-        }else{
-            super.onActivityResult(requestCode, resultCode, data)
-        }
-    }
 
 
     private fun saveImageFile(uri: Uri){
